@@ -144,24 +144,6 @@ pip install -r requirements.txt
 
 ---
 
-## 🌍 Deployment
-
-To deploy on **Render** (free):
-
-1. Push your project to GitHub
-2. Go to [render.com](https://render.com) → New Web Service
-3. Connect your repo
-4. Set the start command:
-```bash
-gunicorn app:app
-```
-5. Add a `Procfile` to your project root:
-```
-web: gunicorn app:app
-```
-
----
-
 ## 📄 License
 
 This project is open source and available under the [MIT License](LICENSE).
