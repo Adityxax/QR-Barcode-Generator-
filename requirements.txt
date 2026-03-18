@@ -1,0 +1,7 @@
+flask
+qrcode[pil]
+python-barcode
+pillow
+pyzbar
+opencv-python
+reportlab

@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QR & Barcode Generator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── THEME VARIABLES ── */
+    [data-theme="dark"] {
+      --bg:         #0f0f0f;
+      --header-bg:  #1a1a2e;
+      --border:     #2a2a4a;
+      --card-bg:    #1a1a2e;
+      --input-bg:   #0f0f1a;
+      --text:       #f0f0f0;
+      --muted:      #888;
+      --muted2:     #aaa;
+      --accent:     #7c83fd;
+      --batch-bg:   #0f0f1a;
+    }
+
+    [data-theme="light"] {
+      --bg:         #f4f4f8;
+      --header-bg:  #ffffff;
+      --border:     #d0d0e0;
+      --card-bg:    #ffffff;
+      --input-bg:   #f9f9fc;
+      --text:       #1a1a2e;
+      --muted:      #555;
+      --muted2:     #666;
+      --accent:     #5a62e0;
+      --batch-bg:   #f0f0f8;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    header {
+      background: var(--header-bg);
+      padding: 20px 40px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .header-center { text-align: center; }
+    header h1 { font-size: 1.8rem; color: var(--accent); }
+    header p  { color: var(--muted); margin-top: 4px; }
+
+    /* ── TOGGLE BUTTON ── */
+    .theme-toggle {
+      position: absolute;
+      right: 30px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 50px;
+      padding: 6px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: var(--text);
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      padding: 20px;
+      flex-wrap: wrap;
+    }
+
+    nav button {
+      padding: 10px 24px;
+      border: 1px solid var(--accent);
+      background: transparent;
+      color: var(--accent);
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    nav button.active,
+    nav button:hover {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .container {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 24px;
+      transition: background 0.3s, border 0.3s;
+    }
+
+    .card h2 { font-size: 1.1rem; color: var(--accent); margin-bottom: 20px; }
+
+    label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--muted2);
+      margin-bottom: 6px;
+      margin-top: 14px;
+    }
+
+    input[type="text"], input[type="color"], select, textarea, input[type="file"] {
+      width: 100%;
+      padding: 10px 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 0.95rem;
+      outline: none;
+      transition: border 0.2s, background 0.3s;
+      cursor: pointer;
+    }
+
+    input[type="text"]:focus, select:focus { border-color: var(--accent); }
+    input[type="color"] { height: 42px; padding: 4px; }
+
+    .row { display: flex; gap: 14px; }
+    .row > * { flex: 1; }
+
+    button.btn {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    button.btn:hover { opacity: 0.85; }
+
+    .result-box { margin-top: 24px; text-align: center; display: none; }
+
+    .result-box img {
+      max-width: 260px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 10px;
+    }
+
+    .download-btns {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 14px;
+    }
+
+    .download-btns a {
+      padding: 8px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      background: var(--input-bg);
+      color: var(--muted2);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .download-btns a:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+    .error-msg { margin-top: 14px; color: #ff6b6b; font-size: 0.9rem; }
+
+    .batch-results { margin-top: 20px; }
+
+    .batch-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--batch-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+
+    .batch-item img {
+      width: 64px; height: 64px;
+      object-fit: contain;
+      background: #fff;
+      border-radius: 6px;
+      padding: 4px;
+    }
+
+    .batch-item .info { flex: 1; font-size: 0.85rem; color: var(--muted2); }
+    .batch-item .info strong { color: var(--text); font-size: 0.95rem; }
+
+    .decode-result {
+      margin-top: 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .decoded-item { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+    .decoded-item:last-child { border-bottom: none; margin-bottom: 0; }
+
+    .type-badge {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      border-radius: 20px;
+      padding: 2px 10px;
+      font-size: 0.75rem;
+      margin-bottom: 6px;
+      opacity: 0.85;
+    }
+
+    .data-text { font-size: 1rem; word-break: break-all; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-center">
+    <h1>📦 QR & Barcode Generator</h1>
+    <p>Generate, decode, and export codes instantly</p>
+  </div>
+
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <span id="theme-icon">🌙</span>
+    <span id="theme-label">Dark</span>
+  </button>
+</header>
+
+<nav>
+  <button class="active" onclick="switchTab('qr', this)">QR Code</button>
+  <button onclick="switchTab('barcode', this)">Barcode</button>
+  <button onclick="switchTab('decode', this)">Decoder</button>
+  <button onclick="switchTab('batch', this)">Batch CSV</button>
+</nav>
+
+<div class="container">
+
+  <!-- QR CODE TAB -->
+  <div id="tab-qr" class="tab-content active">
+    <div class="card">
+      <h2>🔲 Generate QR Code</h2>
+      <label>Text / URL / Data</label>
+      <input type="text" id="qr-data" placeholder="https://example.com or any text" />
+      <div class="row">
+        <div>
+          <label>Foreground Color</label>
+          <input type="color" id="qr-fill" value="#000000" />
+        </div>
+        <div>
+          <label>Background Color</label>
+          <input type="color" id="qr-back" value="#ffffff" />
+        </div>
+        <div>
+          <label>Error Correction</label>
+          <select id="qr-ec">
+            <option value="L">Low (7%)</option>
+            <option value="M" selected>Medium (15%)</option>
+            <option value="Q">Quartile (25%)</option>
+            <option value="H">High (30%)</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn" onclick="generateQR()">Generate QR Code</button>
+      <div class="result-box" id="qr-result">
+        <img id="qr-img" src="" alt="QR Code" />
+        <div class="download-btns">
+          <a id="qr-dl-png" href="#">⬇ Download PNG</a>
+          <a id="qr-dl-pdf" href="#">📄 Download PDF</a>
+        </div>
+      </div>
+      <p class="error-msg" id="qr-error"></p>
+    </div>
+  </div>
+
+  <!-- BARCODE TAB -->
+  <div id="tab-barcode" class="tab-content">
+    <div class="card">
+      <h2>📊 Generate Barcode</h2>
+      <label>Data</label>
+      <input type="text" id="bc-data" placeholder="Enter barcode data..." />
+      <label>Barcode Format</label>
+      <select id="bc-format">
+        <option value="code128">Code 128 (any text)</option>
+        <option value="ean13">EAN-13 (12 digits)</option>
+        <option value="upca">UPC-A (11 digits)</option>
+        <option value="isbn13">ISBN-13</option>
+        <option value="code39">Code 39</option>
+      </select>
+      <button class="btn" onclick="generateBarcode()">Generate Barcode</button>
+      <div class="result-box" id="bc-result">
+        <img id="bc-img" src="" alt="Barcode" style="max-width:360px" />
+        <div class="download-btns">
+          <a id="bc-dl-png" href="#">⬇ Download PNG</a>
+          <a id="bc-dl-pdf" href="#">📄 Download PDF</a>
+        </div>
+      </div>
+      <p class="error-msg" id="bc-error"></p>
+    </div>
+  </div>
+
+  <!-- DECODE TAB -->
+  <div id="tab-decode" class="tab-content">
+    <div class="card">
+      <h2>🔍 Decode QR / Barcode</h2>
+      <label>Upload Image</label>
+      <input type="file" id="decode-file" accept="image/*" />
+      <button class="btn" onclick="decodeImage()">Decode Image</button>
+      <div class="decode-result" id="decode-result" style="display:none;"></div>
+      <p class="error-msg" id="decode-error"></p>
+    </div>
+  </div>
+
+  <!-- BATCH TAB -->
+  <div id="tab-batch" class="tab-content">
+    <div class="card">
+      <h2>📋 Batch Generate from CSV</h2>
+      <p style="color:var(--muted);font-size:0.85rem;margin-bottom:14px;">
+        Upload a CSV file with one value per row. Each row will get its own code.
+      </p>
+      <label>CSV File</label>
+      <input type="file" id="batch-file" accept=".csv" />
+      <label>Code Type</label>
+      <select id="batch-type">
+        <option value="qr">QR Code</option>
+        <option value="barcode">Barcode (Code128)</option>
+      </select>
+      <button class="btn" onclick="batchGenerate()">Generate Batch</button>
+      <div class="batch-results" id="batch-results"></div>
+      <p class="error-msg" id="batch-error"></p>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  // ── Theme Toggle ──
+  function toggleTheme() {
+    const html   = document.documentElement;
+    const isDark = html.getAttribute('data-theme') === 'dark';
+    const next   = isDark ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    document.getElementById('theme-icon').textContent  = isDark ? '☀️' : '🌙';
+    document.getElementById('theme-label').textContent = isDark ? 'Light' : 'Dark';
+    localStorage.setItem('theme', next);
+  }
+
+  // Restore saved theme
+  (function () {
+    const saved = localStorage.getItem('theme');
+    if (saved && saved !== 'dark') {
+      document.documentElement.setAttribute('data-theme', saved);
+      document.getElementById('theme-icon').textContent  = '☀️';
+      document.getElementById('theme-label').textContent = 'Light';
+    }
+  })();
+
+  // ── Tab Switching ──
+  function switchTab(tab, btn) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  // ── Generate QR ──
+  async function generateQR() {
+    document.getElementById('qr-error').textContent = '';
+    document.getElementById('qr-result').style.display = 'none';
+    const form = new FormData();
+    form.append('data',        document.getElementById('qr-data').value);
+    form.append('fill_color',  document.getElementById('qr-fill').value);
+    form.append('back_color',  document.getElementById('qr-back').value);
+    form.append('error_level', document.getElementById('qr-ec').value);
+    const res  = await fetch('/generate/qr', { method: 'POST', body: form });
+    const json = await res.json();
+    if (json.error) { document.getElementById('qr-error').textContent = json.error; return; }
+    document.getElementById('qr-img').src     = json.image_url;
+    document.getElementById('qr-dl-png').href = `/download/png/${json.filename}`;
+    document.getElementById('qr-dl-pdf').href = `/download/pdf/${json.filename}`;
+    document.getElementById('qr-result').style.display = 'block';
+  }
+
+  // ── Generate Barcode ──
+  async function generateBarcode() {
+    document.getElementById('bc-error').textContent = '';
+    document.getElementById('bc-result').style.display = 'none';
+    const form = new FormData();
+    form.append('data',   document.getElementById('bc-data').value);
+    form.append('format', document.getElementById('bc-format').value);
+    const res  = await fetch('/generate/barcode', { method: 'POST', body: form });
+    const json = await res.json();
+    if (json.error) { document.getElementById('bc-error').textContent = json.error; return; }
+    document.getElementById('bc-img').src     = json.image_url;
+    document.getElementById('bc-dl-png').href = `/download/png/${json.filename}`;
+    document.getElementById('bc-dl-pdf').href = `/download/pdf/${json.filename}`;
+    document.getElementById('bc-result').style.display = 'block';
+  }
+
+  // ── Decode Image ──
+  async function decodeImage() {
+    document.getElementById('decode-error').textContent = '';
+    document.getElementById('decode-result').style.display = 'none';
+    const file = document.getElementById('decode-file').files[0];
+    if (!file) { document.getElementById('decode-error').textContent = 'Please upload an image.'; return; }
+    const form = new FormData();
+    form.append('image', file);
+    const res  = await fetch('/decode', { method: 'POST', body: form });
+    const json = await res.json();
+    if (json.error) { document.getElementById('decode-error').textContent = json.error; return; }
+    const box = document.getElementById('decode-result');
+    box.innerHTML = json.results.map(r => `
+      <div class="decoded-item">
+        <span class="type-badge">${r.type}</span>
+        <div class="data-text">${r.data}</div>
+      </div>`).join('');
+    box.style.display = 'block';
+  }
+
+  // ── Batch Generate ──
+  async function batchGenerate() {
+    document.getElementById('batch-error').textContent = '';
+    document.getElementById('batch-results').innerHTML = '';
+    const file = document.getElementById('batch-file').files[0];
+    if (!file) { document.getElementById('batch-error').textContent = 'Please upload a CSV file.'; return; }
+    const form = new FormData();
+    form.append('csv_file', file);
+    form.append('type', document.getElementById('batch-type').value);
+    const res  = await fetch('/batch', { method: 'POST', body: form });
+    const json = await res.json();
+    if (json.error) { document.getElementById('batch-error').textContent = json.error; return; }
+    document.getElementById('batch-results').innerHTML = json.results.map(r => `
+      <div class="batch-item">
+        <img src="${r.image_url}" alt="code" />
+        <div class="info">
+          <strong>${r.data}</strong><br/>
+          <a href="/download/png/${r.filename}" style="color:var(--accent);">⬇ PNG</a> &nbsp;
+          <a href="/download/pdf/${r.filename}" style="color:var(--accent);">📄 PDF</a>
+        </div>
+      </div>`).join('');
+  }
+</script>
+
+</body>
+</html>
