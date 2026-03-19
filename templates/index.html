@@ -9,28 +9,28 @@
 
     /* ── THEME VARIABLES ── */
     [data-theme="dark"] {
-      --bg:         #0f0f0f;
-      --header-bg:  #1a1a2e;
-      --border:     #2a2a4a;
-      --card-bg:    #1a1a2e;
-      --input-bg:   #0f0f1a;
-      --text:       #f0f0f0;
-      --muted:      #888;
-      --muted2:     #aaa;
-      --accent:     #7c83fd;
-      --batch-bg:   #0f0f1a;
+      --bg:         #000000;
+      --header-bg:  #3d0045;
+      --border:     #3d0045;
+      --card-bg:    #000000;
+      --input-bg:   #000000;
+      --text:       #ffffff;
+      --muted:      #ffffff;
+      --muted2:     #368438;
+      --accent:     #9d8b8b;
+      --batch-bg:   #3f3fc3;
     }
 
     [data-theme="light"] {
       --bg:         #f4f4f8;
-      --header-bg:  #ffffff;
-      --border:     #d0d0e0;
+      --header-bg:  #dc6ee3;
+      --border:     #000000;
       --card-bg:    #ffffff;
-      --input-bg:   #f9f9fc;
-      --text:       #1a1a2e;
-      --muted:      #555;
-      --muted2:     #666;
-      --accent:     #5a62e0;
+      --input-bg:   #ffffff;
+      --text:       #000000;
+      --muted:      #000000;
+      --muted2:     #2d0061;
+      --accent:     #070707;
       --batch-bg:   #f0f0f8;
     }
 
@@ -237,7 +237,7 @@
     .type-badge {
       display: inline-block;
       background: var(--accent);
-      color: #fff;
+      color: #ffffff;
       border-radius: 20px;
       padding: 2px 10px;
       font-size: 0.75rem;
@@ -252,7 +252,7 @@
 
 <header>
   <div class="header-center">
-    <h1>📦 QR & Barcode Generator</h1>
+    <h1>QR & Barcode Generator</h1>
     <p>Generate, decode, and export codes instantly</p>
   </div>
 
@@ -274,7 +274,7 @@
   <!-- QR CODE TAB -->
   <div id="tab-qr" class="tab-content active">
     <div class="card">
-      <h2>🔲 Generate QR Code</h2>
+      <h2>Generate QR Code</h2>
       <label>Text / URL / Data</label>
       <input type="text" id="qr-data" placeholder="https://example.com or any text" />
       <div class="row">
@@ -311,7 +311,7 @@
   <!-- BARCODE TAB -->
   <div id="tab-barcode" class="tab-content">
     <div class="card">
-      <h2>📊 Generate Barcode</h2>
+      <h2>Generate Barcode</h2>
       <label>Data</label>
       <input type="text" id="bc-data" placeholder="Enter barcode data..." />
       <label>Barcode Format</label>
@@ -337,7 +337,7 @@
   <!-- DECODE TAB -->
   <div id="tab-decode" class="tab-content">
     <div class="card">
-      <h2>🔍 Decode QR / Barcode</h2>
+      <h2>Decode QR / Barcode</h2>
       <label>Upload Image</label>
       <input type="file" id="decode-file" accept="image/*" />
       <button class="btn" onclick="decodeImage()">Decode Image</button>
@@ -349,7 +349,7 @@
   <!-- BATCH TAB -->
   <div id="tab-batch" class="tab-content">
     <div class="card">
-      <h2>📋 Batch Generate from CSV</h2>
+      <h2>Batch Generate from CSV</h2>
       <p style="color:var(--muted);font-size:0.85rem;margin-bottom:14px;">
         Upload a CSV file with one value per row. Each row will get its own code.
       </p>
@@ -375,8 +375,8 @@
     const isDark = html.getAttribute('data-theme') === 'dark';
     const next   = isDark ? 'light' : 'dark';
     html.setAttribute('data-theme', next);
-    document.getElementById('theme-icon').textContent  = isDark ? '☀️' : '🌙';
     document.getElementById('theme-label').textContent = isDark ? 'Light' : 'Dark';
+    document.getElementById('theme-icon').textContent  = isDark ? '☀️' : '🌙';
     localStorage.setItem('theme', next);
   }
 
